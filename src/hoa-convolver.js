@@ -122,13 +122,22 @@ HOAConvolver.prototype._setHRIRBuffers = function (hrirBuffers) {
 
   this._stereoHrirs = [];
   for (var i = 0; i < numStereoChannels; i++) {
-    this._stereoHrirs[i] =
-      this._context.createBuffer(2, hrirBuffers.length, hrirBuffers.sampleRate);
+    let leftChannelIndex = i * 2;
+    let rightChannelIndex = i * 2 + 1;
+    let bufferChannels = 2;
+    if (rightChannelIndex < hrirBuffers.numberOfChannels) {
+      this._stereoHrirs[i] = this._context.createBuffer(2,
+        hrirBuffers.length, hrirBuffers.sampleRate);
 
+        // Only copy over right-channel if channel exists in hrirBuffers.
+      this._stereoHrirs[i]
+        .getChannelData(1).set(hrirBuffers.getChannelData(rightChannelIndex));
+    } else {
+      this._stereoHrirs[i] = this._context.createBuffer(1,
+        hrirBuffers.length, hrirBuffers.sampleRate);
+    }
     this._stereoHrirs[i]
-      .getChannelData(0).set(hrirBuffers.getChannelData(i * 2));
-    this._stereoHrirs[i]
-      .getChannelData(1).set(hrirBuffers.getChannelData(i * 2 + 1));
+      .getChannelData(0).set(hrirBuffers.getChannelData(leftChannelIndex));
     this._convolvers[i].buffer = this._stereoHrirs[i];
   }
 };
