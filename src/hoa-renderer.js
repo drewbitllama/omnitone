@@ -88,7 +88,7 @@ HOARenderer.prototype._initializeCallback = function(resolve, reject) {
 
   // Constrcut a consolidated HOA HRIR (e.g. 16 channels for TOA).
   // Handle multiple chunks of HRIR buffer data splitted by 8 channels each.
-  // This is because Chrome cannot decode the audio file >8  channels.
+  // This is because Chrome cannot decode the audio file >8 channels.
   var audioBufferData = [];
   this._HRIRUrls.forEach(function(key, index, urls) {
     audioBufferData.push({name: index, url: urls[index]});
@@ -97,7 +97,13 @@ HOARenderer.prototype._initializeCallback = function(resolve, reject) {
   new AudioBufferManager(
       this._context, audioBufferData,
       function(buffers) {
-        buffers.forEach(function(buffer, key, buffers) {
+        var accumulatedChannelCount = 0;
+        // The iteration order of buffer in |buffers| might be flaky because it
+        // is a Map. Thus, iterate based on the |audioBufferData| array instead
+        // of the |buffers| map.
+        audioBufferData.forEach(function (data) {
+          var buffer = buffers.get(data.name);
+
           // Create a K channel buffer to integrate individual IR buffers.
           if (!hoaHRIRBuffer) {
             hoaHRIRBuffer = this._context.createBuffer(
@@ -110,8 +116,8 @@ HOARenderer.prototype._initializeCallback = function(resolve, reject) {
             channelOffset += buffers.get(key).numberOfChannels;
           }
           for (var channel = 0; channel < buffer.numberOfChannels; ++channel) {
-            hoaHRIRBuffer.copyToChannel(
-                buffer.getChannelData(channel), channelOffset + channel);
+            hoaHRIRBuffer.copyToChannel(buffer.getChannelData(channel),
+                                        accumulatedChannelCount + channel);
           }
         }.bind(this));
 
@@ -121,11 +127,11 @@ HOARenderer.prototype._initializeCallback = function(resolve, reject) {
         resolve();
       }.bind(this),
       function(buffers) {
-        // TODO: why is it failing?
+        // TODO: Deiliver more descriptive error message.
         var errorMessage = 'Initialization failed.';
         Utils.log(errorMessage);
         reject(errorMessage);
-      }.bind(this));
+      });
 };
 
 
