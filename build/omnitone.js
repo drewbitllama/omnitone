@@ -1448,7 +1448,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        resolve();
 	      }.bind(this),
 	      function (buffers) {
-	        var errorMessage = 'Initialization failed: ' + key + ' is ' 
+	        var errorMessage = 'Initialization failed: ' + key + ' is '
 	            + buffers.get(0) + '.';
 	        Utils.log(errorMessage);
 	        reject(errorMessage);
@@ -1492,9 +1492,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (!this._isRendererReady)
 	    return;
 
-	  // Use the camera object's local transform matrix for the rotation.
+	  // Use the camera object's world transform matrix for the rotation.
 	  // See: https://threejs.org/docs/#api/core/Object3D
-	  this._foaRotator.setRotationMatrix4(camera.matrix.elements);
+	  this._foaRotator.setRotationMatrix4(camera.matrixWorld.elements);
 	};
 
 
@@ -2231,25 +2231,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	          }
 	        }.bind(this));
 
-<<<<<<< HEAD
 	        this._buildAudioGraph(hoaHRIRBuffer);
 	        this._isRendererReady = true;
 	        Utils.log('Rendering via SH-MaxRE convolution.');
 	        resolve();
-=======
-	        if (accumulatedChannelCount === this._numberOfChannels) {
-	          this._buildAudioGraph(hoaHRIRBuffer);
-	          this._isRendererReady = true;
-	          Utils.log('Rendering via SH-MaxRE convolution.');
-	          resolve();
-	        } else {
-	          var errorMessage = 'Only ' + accumulatedChannelCount +
-	              ' HRIR channels were loaded (expected ' + this._numberOfChannels +
-	              '). The renderer will not function correctly.';
-	          Utils.log(errorMessage);
-	          reject(errorMessage);
-	        }
->>>>>>> Build 0.9.2
 	      }.bind(this),
 	      function(buffers) {
 	        // TODO: Deiliver more descriptive error message.
@@ -2303,9 +2288,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (!this._isRendererReady)
 	    return;
 
-	  // Use the camera object's local transform matrix for the rotation.
+	  // Use the camera object's world transform matrix for the rotation.
 	  // See: https://threejs.org/docs/#api/core/Object3D
-	  this._hoaRotator.setRotationMatrix4(camera.matrix.elements);
+	  this._hoaRotator.setRotationMatrix4(camera.matrixWorld.elements);
 	};
 
 
